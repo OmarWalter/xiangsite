@@ -36,7 +36,7 @@ export async function signup(formData: FormData) {
     //   return { error: "User with this email already exists" };
     // }
 
-    const hashedPassword = await hash(password, 10);
+    // const hashedPassword = await hash(password, 10);
 
     // Placeholder: Create user
     // await db.user.create({

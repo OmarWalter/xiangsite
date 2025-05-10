@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import SignUpModal from "../modals/SignUpModal";
 import LoginModal from "../modals/LoginModal";
@@ -77,9 +77,13 @@ export default function Navbar() {
         </div>
       </nav>
 
-    
-      <SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} />
-      <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      {/* Wrap modals in Suspense */}
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+      </Suspense>
+      <Suspense fallback={<div>Loading...</div>}>
+        <SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} />
+      </Suspense>
     </>
   );
 }

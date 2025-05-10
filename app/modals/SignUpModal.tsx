@@ -63,14 +63,14 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
       // Server action should redirect to /about, fallback to client-side if needed
       console.log("Signup successful, expecting server-side redirect to /about");
       router.push("/about");
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Ignore NEXT_REDIRECT errors, as they indicate a successful redirect
-      if (error.message === "NEXT_REDIRECT") {
+      if (error instanceof Error && error.message === "NEXT_REDIRECT") {
         console.log("Caught NEXT_REDIRECT, server-side redirect to /about triggered");
         return;
       }
       console.error("Signup error:", error);
-      const message = error.message || "Registration failed";
+      const message = error instanceof Error ? error.message : "Registration failed";
       alert(message);
     }
   };

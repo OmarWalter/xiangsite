@@ -33,46 +33,47 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   if (!isOpen) return null;
 
-  const onSubmit = async ({ email, password }: LoginForm) => {
-    try {
-      // Check for client-side validation errors
-      if (Object.keys(errors).length > 0) {
-        const errorMessages = Object.values(errors)
-          .map((error) => error.message)
-          .filter((msg): msg is string => !!msg)
-          .join("\n");
-        alert(errorMessages || "Please fix the form errors");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("email", email);
-      formData.append("password", password);
-      const result = await login(formData);
-      if (result?.error) {
-        alert(result.error);
-        return;
-      }
-      // Server action handles redirect to /about, fallback to client-side
-      const returnUrl = searchParams?.get("returnUrl");
-      if (returnUrl) {
-        console.log(`Using returnUrl: ${returnUrl}`);
-        router.push(returnUrl);
-      } else {
-        console.log("Login successful, expecting server-side redirect to /about");
-        router.push("/about");
-      }
-    } catch (error: any) {
-      // Ignore NEXT_REDIRECT errors, as they indicate a successful redirect
-      if (error.message === "NEXT_REDIRECT") {
-        console.log("Caught NEXT_REDIRECT, server-side redirect to /about triggered");
-        return;
-      }
-      console.error("Login error:", error);
-      const message = error.message || "Login failed";
-      alert(message);
+const onSubmit = async ({ email, password }: LoginForm) => {
+  try {
+    // Check for client-side validation errors
+    if (Object.keys(errors).length > 0) {
+      const errorMessages = Object.values(errors)
+        .map((error) => error.message)
+        .filter((msg): msg is string => !!msg)
+        .join("\n");
+      alert(errorMessages || "Please fix the form errors");
+      return;
     }
-  };
+
+    const formData = new FormData();
+    formData.append("email", email);
+    formData.append("password", password);
+    const result = await login(formData);
+    if (result?.error) {
+      alert(result.error);
+      return;
+    }
+    // Server action handles redirect to /about, fallback to client-side
+    const returnUrl = searchParams?.get("returnUrl");
+    if (returnUrl) {
+      console.log(`Using returnUrl: ${returnUrl}`);
+      router.push(returnUrl);
+    } else {
+      console.log("Login successful, expecting server-side redirect to /about");
+      router.push("/about");
+    }
+  } catch (error: unknown) {
+    // Ignore NEXT_REDIRECT errors, as they indicate a successful redirect
+    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+      console.log("Caught NEXT_REDIRECT, server-side redirect to /about triggered");
+      return;
+    }
+    console.error("Login error:", error);
+    const message =
+      error instanceof Error ? error.message : "Login failed";
+    alert(message);
+  }
+};
 
   return (
     <div
