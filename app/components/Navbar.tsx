@@ -30,7 +30,7 @@ useEffect(() => {
     const checkLoginStatus = () => {
       const token = document.cookie
         .split('; ')
-        .find((row) => row.startsWith('token='))
+        .find((row) => row.startsWith('sessionToken='))
         ?.split('=')[1];
       setIsLoggedIn(!!token);
     };
@@ -73,6 +73,15 @@ useEffect(() => {
               >
                 About Us
               </button>
+            )}
+            {isLoggedIn && (
+            <Link
+              href="/project"
+              className="text-white bg-black/70 hover:bg-white/30 focus:ring-4 focus:outline-none focus:ring-white/50 font-medium rounded-lg text-xl px-8 py-5 text-center transition-colors"
+              aria-label="Log in to your account"
+            >
+              Projects
+            </Link>
             )}
             <Link
               href="/login"

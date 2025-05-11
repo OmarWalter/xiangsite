@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
   const publicRoutes = ['/'];
 
   // Define protected routes that require authentication
-  const protectedRoutes = ['/about']; // Add more routes as needed
+  const protectedRoutes = ['/about','/project']; // Add more routes as needed
 
   // Log for debugging
   console.log(`Middleware: Pathname: ${pathname}, Token: ${token ? 'Present' : 'Absent'}`);
