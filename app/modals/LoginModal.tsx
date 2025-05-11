@@ -138,14 +138,14 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               {isSubmitting && <span className="inline-block animate-spin mr-2">⏳</span>}
               Log In
             </button>
-            <button
+            <a
               type="button"
-              onClick={onClose}
+              href="/signup"
               className="text-gray-500 hover:text-gray-700"
               aria-label="Cancel login"
             >
-              Cancel
-            </button>
+              Register
+            </a>
           </div>
         </form>
       </div>
