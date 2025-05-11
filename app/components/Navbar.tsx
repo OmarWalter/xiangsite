@@ -1,31 +1,48 @@
-"use client";
+'use client';
 
-import { useState, useEffect, Suspense } from "react";
-import Link from "next/link";
-import SignUpModal from "../modals/SignUpModal";
-import LoginModal from "../modals/LoginModal";
+import { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
+import SignUpModal from '../modals/SignUpModal';
+import LoginModal from '../modals/LoginModal';
 
 export default function Navbar() {
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [animateLogo, setAnimateLogo] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login state
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
 
-  // Trigger animation on component mount
+  // Sync modal state with URL
   useEffect(() => {
-    setAnimateLogo(true); // Start animation
+    setIsLoginOpen(pathname === '/login');
+    setIsSignUpOpen(pathname === '/signup');
+  }, [pathname]);
+
+  // Trigger logo animation
+  useEffect(() => {
+    setAnimateLogo(true);
   }, []);
 
-  // Simulate login status check (replace with real auth logic)
-  useEffect(() => {
-    // Example: Check if user is logged in (e.g., via token in localStorage or auth provider)
-    // For demo purposes, this is a placeholder
+  // Check login status (replace with real auth logic)
+useEffect(() => {
     const checkLoginStatus = () => {
-      // Replace with actual auth check, e.g., localStorage.getItem('token') or auth provider
-      setIsLoggedIn(false); // Set to true for testing logged-in state
+      const token = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('token='))
+        ?.split('=')[1];
+      setIsLoggedIn(!!token);
     };
     checkLoginStatus();
   }, []);
+
+  // Handle modal close
+  const handleClose = () => {
+    setIsLoginOpen(false);
+    setIsSignUpOpen(false);
+    router.push('/'); // Redirect to home or previous page
+  };
 
   return (
     <>
@@ -39,7 +56,7 @@ export default function Navbar() {
           >
             <span
               className={`self-center text-2xl font-semibold whitespace-nowrap text-gray-900 transition-transform duration-2000 ${
-                animateLogo ? "animate-logo-move animate-shine" : ""
+                animateLogo ? 'animate-logo-move animate-shine' : ''
               }`}
             >
               XIAOHONGSHUUI
@@ -57,32 +74,30 @@ export default function Navbar() {
                 About Us
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => setIsLoginOpen(true)}
-              className="text-white bg-black/70 hover:bg-white/30 focus:ring-4 focus:outline-none focus:ring-white/50 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors"
+            <Link
+              href="/login"
+              className="text-white bg-black/70 hover:bg-white/30 focus:ring-4 focus:outline-none focus:ring-white/50 font-medium rounded-lg text-xl px-8 py-5 text-center transition-colors"
               aria-label="Log in to your account"
             >
               Login
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsSignUpOpen(true)}
-              className="text-white bg-black/90 hover:bg-white/50 focus:ring-4 focus:outline-none focus:ring-white/50 font-medium rounded-lg text-sm px-4 py-2 text-center transition-colors"
+            </Link>
+            <Link
+              href="/signup"
+              className="text-white bg-black/90 hover:bg-white/50 focus:ring-4 focus:outline-none focus:ring-white/50 font-medium rounded-lg text-xl px-8 py-5 text-center transition-colors"
               aria-label="Sign up for a new account"
             >
               SignUp
-            </button>
+            </Link>
           </div>
         </div>
       </nav>
 
-      {/* Wrap modals in Suspense */}
+      {/* Modals */}
       <Suspense fallback={<div>Loading...</div>}>
-        <LoginModal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)} />
+        <LoginModal isOpen={isLoginOpen} onClose={handleClose} />
       </Suspense>
       <Suspense fallback={<div>Loading...</div>}>
-        <SignUpModal isOpen={isSignUpOpen} onClose={() => setIsSignUpOpen(false)} />
+        <SignUpModal isOpen={isSignUpOpen} onClose={handleClose} />
       </Suspense>
     </>
   );

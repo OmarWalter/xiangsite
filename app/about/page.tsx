@@ -1,6 +1,21 @@
+"use client"
 import Admins from "./Admins"
 import Image from 'next/image';
+// import { useSession } from 'next-auth/react';
+// import { useRouter } from 'next/navigation';
+// import { useEffect } from 'react';
 export default function About() {
+  // const { data: session, status } = useSession();
+  // const router = useRouter();
+
+  // useEffect(() => {
+  //   if (status === 'unauthenticated') {
+  //     router.push('/login');
+  //   }
+  // }, [router]);
+
+  // if (status === 'loading') return <div>Loading...</div>;
+  // if (!session) return null;
   return (
     <section className="py-20 px-4 bg-gray-900 min-h-screen flex items-center justify-center">
       <div className="container mx-auto px-8 text-center max-w-5xl">

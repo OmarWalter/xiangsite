@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { login } from "@/app/actions/auth";
+import { compare } from "bcryptjs";
 
 interface LoginForm {
   email: string;
@@ -18,7 +19,6 @@ interface LoginModalProps {
 
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginForm>({
     resolver: yupResolver(
@@ -33,47 +33,58 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   if (!isOpen) return null;
 
-const onSubmit = async ({ email, password }: LoginForm) => {
-  try {
-    // Check for client-side validation errors
-    if (Object.keys(errors).length > 0) {
-      const errorMessages = Object.values(errors)
-        .map((error) => error.message)
-        .filter((msg): msg is string => !!msg)
-        .join("\n");
-      alert(errorMessages || "Please fix the form errors");
-      return;
-    }
+  const onSubmit = async ({ email, password }: LoginForm) => {
+    try {
+      if (Object.keys(errors).length > 0) {
+        const errorMessages = Object.values(errors)
+          .map((error) => error.message)
+          .filter((msg): msg is string => !!msg)
+          .join("\n");
+        alert(errorMessages || "Please fix the form errors");
+        return;
+      }
 
-    const formData = new FormData();
-    formData.append("email", email);
-    formData.append("password", password);
-    const result = await login(formData);
-    if (result?.error) {
-      alert(result.error);
-      return;
-    }
-    // Server action handles redirect to /about, fallback to client-side
-    const returnUrl = searchParams?.get("returnUrl");
-    if (returnUrl) {
-      console.log(`Using returnUrl: ${returnUrl}`);
-      router.push(returnUrl);
-    } else {
+      // Retrieve email and password from localStorage
+      const storedEmail = localStorage.getItem("email");
+      const storedHashedPassword = localStorage.getItem("password");
+
+      // Check if email exists in localStorage
+      if (!storedEmail || storedEmail !== email) {
+        alert("Invalid email or password");
+        return;
+      }
+
+      // Verify password
+      const isPasswordValid = await compare(password, storedHashedPassword || "");
+      if (!isPasswordValid) {
+        alert("Invalid email or password");
+        return;
+      }
+
+      // Proceed with server-side login if localStorage validation passes
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+      const result = await login(formData);
+      if (result?.error) {
+        alert(result.error);
+        return;
+      }
+
       console.log("Login successful, expecting server-side redirect to /about");
       router.push("/about");
+      onClose(); // Close the modal after successful login
+    } catch (error: unknown) {
+      if (error instanceof Error && error.message === "NEXT_REDIRECT") {
+        console.log("Caught NEXT_REDIRECT, server-side redirect to /about triggered");
+        onClose(); // Close the modal
+        return;
+      }
+      console.error("Login error:", error);
+      const message = error instanceof Error ? error.message : "Login failed";
+      alert(message);
     }
-  } catch (error: unknown) {
-    // Ignore NEXT_REDIRECT errors, as they indicate a successful redirect
-    if (error instanceof Error && error.message === "NEXT_REDIRECT") {
-      console.log("Caught NEXT_REDIRECT, server-side redirect to /about triggered");
-      return;
-    }
-    console.error("Login error:", error);
-    const message =
-      error instanceof Error ? error.message : "Login failed";
-    alert(message);
-  }
-};
+  };
 
   return (
     <div

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as Yup from "yup";
 import { signup } from "@/app/actions/auth";
+import { hash } from "bcryptjs";
 
 interface SignUpForm {
   firstName: string;
@@ -40,7 +41,6 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
 
   const onSubmit = async ({ firstName, lastName, email, password }: SignUpForm) => {
     try {
-      // Check for client-side validation errors
       if (Object.keys(errors).length > 0) {
         const errorMessages = Object.values(errors)
           .map((error) => error.message)
@@ -60,13 +60,23 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         alert(result.error);
         return;
       }
-      // Server action should redirect to /about, fallback to client-side if needed
+
+      // Hash the password before storing in localStorage
+      const hashedPassword = await hash(password, 10);
+
+      // Store user data in localStorage
+      localStorage.setItem("firstName", firstName);
+      localStorage.setItem("lastName", lastName);
+      localStorage.setItem("email", email);
+      localStorage.setItem("password", hashedPassword);
+
       console.log("Signup successful, expecting server-side redirect to /about");
+      onClose(); // Close the modal
       router.push("/about");
     } catch (error: unknown) {
-      // Ignore NEXT_REDIRECT errors, as they indicate a successful redirect
       if (error instanceof Error && error.message === "NEXT_REDIRECT") {
         console.log("Caught NEXT_REDIRECT, server-side redirect to /about triggered");
+        onClose(); // Close the modal
         return;
       }
       console.error("Signup error:", error);

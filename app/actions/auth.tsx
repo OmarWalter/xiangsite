@@ -1,8 +1,9 @@
 "use server";
 
 import { z } from "zod";
-import { redirect } from "next/navigation";
-import { hash, compare } from "bcryptjs";
+// import { redirect } from "next/navigation";
+// import { hash } from "bcryptjs";
+import { cookies } from "next/headers";
 
 const signupSchema = z.object({
   firstName: z.string().min(1, { message: "First name is required" }),
@@ -30,15 +31,7 @@ export async function signup(formData: FormData) {
       };
     }
 
-    // Placeholder: Check if user exists
-    // const existingUser = await db.user.findUnique({ where: { email } });
-    // if (existingUser) {
-    //   return { error: "User with this email already exists" };
-    // }
-
-    // const hashedPassword = await hash(password, 10);
-
-    // Placeholder: Create user
+    // Placeholder: Create user (if you integrate a database later)
     // await db.user.create({
     //   data: {
     //     firstName,
@@ -50,7 +43,10 @@ export async function signup(formData: FormData) {
 
     console.log(`User ${email} signed up successfully`);
 
-    redirect("/about");
+    // Set session token for middleware
+    const cookieStore = await cookies();
+    cookieStore.set("sessionToken", email, { httpOnly: true, secure: true });
+
   } catch (error) {
     console.error("Signup error:", error);
     return {
@@ -71,30 +67,12 @@ export async function login(formData: FormData) {
       };
     }
 
-    // Placeholder: Fetch user from database
-    // const user = await db.user.findUnique({ where: { email } });
-    // if (!user) {
-    //   return { error: "Invalid email or password" };
-    // }
-
-    // Placeholder: Replace with actual user data
-    const user = {
-      email,
-      password: await hash("testpassword", 10), // Mock hashed password
-    };
-
-    // Verify password
-    const isPasswordValid = await compare(password, user.password);
-    if (!isPasswordValid) {
-      return { error: "Invalid email or password" };
-    }
-
-    // Placeholder: Set up session or authentication
-    // await setSession({ userId: user.id, email: user.email });
-
     console.log(`User ${email} logged in successfully`);
 
-    redirect("/about");
+    // Set session token for middleware
+    const cookieStore = await cookies();
+    cookieStore.set("sessionToken", email, { httpOnly: true, secure: true });
+
   } catch (error) {
     console.error("Login error:", error);
     return {

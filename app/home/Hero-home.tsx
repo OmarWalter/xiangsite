@@ -29,7 +29,7 @@ export default function HeroHome() {
         </p>
         <a
           href="/about"
-          className="inline-block bg-green-500 text-gray-900 font-bold py-2 px-6 rounded-lg hover:bg-green-400 transition text-base md:text-lg"
+          className="inline-block bg-green-500 text-gray-900 font-bold py-5 px-10 rounded-lg hover:bg-green-400 transition text-base md:text-3xl"
           target="_self"
           rel="noopener noreferrer"
         >
